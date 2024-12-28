@@ -8,6 +8,8 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.16.13",
+    "@vercel/analytics": "^1.4.1",
+    "@vercel/speed-insights": "^1.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1"
