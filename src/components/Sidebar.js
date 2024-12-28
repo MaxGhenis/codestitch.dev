@@ -30,7 +30,10 @@ const Sidebar = () => {
           <code>github.com/owner/repo/issues/456</code>
         </li>
       </ul>
-      <p>Created by Max Ghenis.</p>
+      <p>
+        Created by <a href="https://github.com/maxghenis" target="_blank" rel="noreferrer">Max Ghenis</a><br/>
+        Repo: <a href="https://github.com/maxghenis/codestitch.dev" target="_blank" rel="noreferrer">codestitch.dev</a>
+      </p>
     </div>
   );
 };

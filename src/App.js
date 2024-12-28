@@ -22,21 +22,20 @@ function App() {
     setLoading(true);
     setErrorOccurred(false);
 
-    // Clean inputs
     const inputs = githubInputs
       .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length);
+      .map(line => line.trim())
+      .filter(line => line.length);
 
     const filePatternsArr = filePatterns
       .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length);
+      .map(line => line.trim())
+      .filter(line => line.length);
 
     const linePatternsArr = linePatterns
       .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length);
+      .map(line => line.trim())
+      .filter(line => line.length);
 
     if (!inputs.length) {
       alert('⚠️ Please enter at least one GitHub URL, PR link, or regex pattern.');
@@ -62,6 +61,18 @@ function App() {
     }
   };
 
+  // Copy-to-clipboard function
+  const handleCopy = () => {
+    navigator.clipboard.writeText(stitchedContent)
+      .then(() => {
+        alert('Content copied to clipboard!');
+      })
+      .catch((err) => {
+        console.error('Could not copy text: ', err);
+      });
+  };
+
+  // Download as .md
   const handleDownload = () => {
     const blob = new Blob([stitchedContent], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -78,7 +89,7 @@ function App() {
       <div className="main-content">
         <h1>🧵 CodeStitch.dev</h1>
         <p>
-          Stitch together content from GitHub repositories, PRs, or issues. 
+          Stitch together content from GitHub repositories, PRs, or issues.
           Enter URLs to files, folders, PRs, issues, or use regex patterns to match file paths.
         </p>
 
@@ -117,18 +128,29 @@ function App() {
         {stitchedContent && (
           <>
             {errorOccurred && (
-              <div style={{ color: 'orange', marginTop: '1rem' }}>
+              <div className="warning-message">
                 ⚠️ Some errors occurred while fetching content. Please check the output below.
               </div>
             )}
             {!errorOccurred && (
-              <div style={{ color: 'green', marginTop: '1rem' }}>
+              <div className="success-message">
                 ✅ Content stitched successfully!
               </div>
             )}
+            
             <h3>Stitched Content:</h3>
-            <pre className="stitched-content">{stitchedContent}</pre>
-            <button onClick={handleDownload}>💾 Download Stitched Content</button>
+            <div className="stitched-content-container">
+              <pre className="stitched-content">
+                {stitchedContent}
+              </pre>
+              <button className="copy-button" onClick={handleCopy}>
+                Copy
+              </button>
+            </div>
+
+            <button className="download-button" onClick={handleDownload}>
+              💾 Download Stitched Content
+            </button>
           </>
         )}
       </div>
