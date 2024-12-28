@@ -1,4 +1,3 @@
-// src/utils/github/repo-operations.ts
 import { ProcessOptions, ProcessPathOptions, ProcessFileOptions, ProcessContentOptions, GitHubError } from '../../types/github';
 import { fetchRepo, fetchDirectory, fetchFile } from './api-client';
 import { shouldIncludeFile, shouldIncludeLine } from '../filters';

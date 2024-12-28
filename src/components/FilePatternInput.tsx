@@ -1,4 +1,3 @@
-// src/components/FilePatternInput.tsx
 import React from 'react';
 import { ComponentProps } from '../types';
 

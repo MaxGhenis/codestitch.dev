@@ -1,4 +1,3 @@
-// src/components/AdvancedFilters.tsx
 import React from 'react';
 import {
   Accordion,

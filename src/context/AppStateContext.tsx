@@ -1,4 +1,3 @@
-// src/context/AppStateContext.tsx
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { AppState, AppAction } from '../types';
 

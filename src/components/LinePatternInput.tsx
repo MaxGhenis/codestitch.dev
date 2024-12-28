@@ -1,4 +1,3 @@
-// src/components/LinePatternInput.tsx
 import React from 'react';
 import { ComponentProps } from '../types';
 

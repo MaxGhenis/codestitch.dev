@@ -1,4 +1,3 @@
-// src/utils/github/content-processor.ts
 import { GitHubContentOptions, GitHubError } from '../../types/github';
 import { processRepo, processPath, processFile } from './repo-operations';
 import { processPullRequest } from './pr-operations';

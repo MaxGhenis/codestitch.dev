@@ -1,15 +1,15 @@
-// src/utils/github/api-client.ts
 import { GitHubOptions } from '../../types/github';
 
+const SERVERLESS_URL = 'https://www.codestitch.dev/api/github-proxy'; // Use primary custom domain
+
 export function ghFetch(url: string, options: GitHubOptions = {}) {
-  const token = process.env.REACT_APP_GITHUB_TOKEN;
   const headers = {
-    ...options.headers
+    ...options.headers,
   };
-  if (token) {
-    headers.Authorization = `token ${token}`;
-  }
-  return fetch(url, { ...options, headers });
+
+  // Proxy the request through the serverless function
+  const proxyUrl = `${SERVERLESS_URL}?endpoint=${encodeURIComponent(url.replace('https://api.github.com/', ''))}`;
+  return fetch(proxyUrl, { ...options, headers });
 }
 
 export async function fetchRepo(repoName: string) {

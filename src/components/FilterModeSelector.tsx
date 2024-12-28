@@ -1,4 +1,3 @@
-// src/components/FilterModeSelector.tsx
 import React from 'react';
 import { FilterModeProps } from '../types';
 

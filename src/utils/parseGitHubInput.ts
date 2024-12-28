@@ -1,5 +1,3 @@
-// src/utils/parseGitHubInput.ts
-
 interface ParseResult {
   inputType: string | null;
   repoName: string | null;

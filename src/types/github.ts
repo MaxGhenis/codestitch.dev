@@ -1,5 +1,3 @@
-// src/types/github.ts
-
 export interface GitHubOptions {
     headers?: Record<string, string>;
   }

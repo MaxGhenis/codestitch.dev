@@ -1,4 +1,3 @@
-// src/utils/github/issue-operations.ts
 import { GitHubError } from '../../types/github';
 import { ghFetch } from './api-client';
 

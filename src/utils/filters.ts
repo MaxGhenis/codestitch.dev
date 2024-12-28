@@ -1,5 +1,3 @@
-// src/utils/filters.ts
-
 export function shouldIncludeFile(
   path: string,
   filePatterns: string[],
