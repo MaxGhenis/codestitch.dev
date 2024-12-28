@@ -9,20 +9,22 @@ interface IssueParams {
 export async function processIssue({ repoName, issueNumber }: IssueParams) {
   try {
     const [owner, repo] = repoName.split('/');
-    const issueUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`;
+    const issueEndpoint = `repos/${owner}/${repo}/issues/${issueNumber}`;
 
-    const issueRes = await ghFetch(issueUrl);
+    const issueRes = await ghFetch(issueEndpoint);
     if (issueRes.status !== 200) {
       return `Error fetching issue: ${issueRes.status}\n`;
     }
     const issueData = await issueRes.json();
 
     // comments
-    const commentsRes = await ghFetch(`${issueUrl}/comments`);
+    const commentsEndpoint = `${issueEndpoint}/comments`;
+    const commentsRes = await ghFetch(commentsEndpoint);
     let commentsData = [];
     if (commentsRes.status === 200) {
       commentsData = await commentsRes.json();
     }
+
 
     const lines = [];
     lines.push(`# ${issueData.title}\n`);

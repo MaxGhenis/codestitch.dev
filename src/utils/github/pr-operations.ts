@@ -9,17 +9,17 @@ interface PullRequestParams {
 export async function processPullRequest({ repoName, prNumber }: PullRequestParams) {
   try {
     const [owner, repo] = repoName.split('/');
-    const prUrl = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}`;
+    const prEndpoint = `repos/${owner}/${repo}/pulls/${prNumber}`;
 
     // fetch PR data
-    const prRes = await ghFetch(prUrl);
+    const prRes = await ghFetch(prEndpoint);
     if (prRes.status !== 200) {
       return `Error fetching PR info: ${prRes.status}\n`;
     }
     const prData = await prRes.json();
 
     // fetch PR diff
-    const diffRes = await ghFetch(prUrl, {
+    const diffRes = await ghFetch(prEndpoint, {
       headers: { Accept: 'application/vnd.github.v3.diff' }
     });
     if (diffRes.status !== 200) {
