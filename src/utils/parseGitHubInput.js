@@ -1,4 +1,4 @@
-// A simple approach that tries to replicate the Python parse logic
+// A simple parser to detect type: repo, file, directory, PR, issue, or a regex pattern
 
 export function parseGitHubInput(line) {
     // Check for 'regex:' prefix
@@ -8,7 +8,7 @@ export function parseGitHubInput(line) {
     }
   
     // Normalize if needed
-    let url = line;
+    let url = line.trim();
     if (url.startsWith('github.com/')) {
       url = 'https://' + url;
     }
@@ -23,8 +23,6 @@ export function parseGitHubInput(line) {
     const repoName = matchRepo[1];
     const remaining = url.slice(matchRepo[0].length);
   
-    // Check for patterns
-    // e.g. /pull/123, /issues/456, /tree/branch/path, /blob/branch/path
     if (!remaining || remaining === '/') {
       return { inputType: 'repo', repoName, extraInfo: null };
     }
@@ -49,6 +47,5 @@ export function parseGitHubInput(line) {
       return { inputType: 'file', repoName, extraInfo: { branch, path } };
     }
   
-    // Default
     return { inputType: null, repoName: null, extraInfo: null };
   }

@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
+  Button,
+  Alert
+} from '@mui/material';
 import GitHubInput from './components/GitHubInput';
-import FilePatternInput from './components/FilePatternInput';
-import LinePatternInput from './components/LinePatternInput';
-import FilterModeSelector from './components/FilterModeSelector';
-import Sidebar from './components/Sidebar';
+import AdvancedFilters from './components/AdvancedFilters';
+import AboutCard from './components/AboutCard';
+import OutputArea from './components/OutputArea';
 import { processGitHubContent } from './utils/githubApi';
-import './styles/App.css';
+import './App.css';
 
 function App() {
+  // Basic states
   const [githubInputs, setGithubInputs] = useState('');
   const [filePatterns, setFilePatterns] = useState('');
   const [fileFilterMode, setFileFilterMode] = useState('Include matching files');
@@ -22,20 +30,11 @@ function App() {
     setLoading(true);
     setErrorOccurred(false);
 
+    // parse user input lines
     const inputs = githubInputs
       .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length);
-
-    const filePatternsArr = filePatterns
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length);
-
-    const linePatternsArr = linePatterns
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length);
+      .map((l) => l.trim())
+      .filter((l) => !!l);
 
     if (!inputs.length) {
       alert('⚠️ Please enter at least one GitHub URL, PR link, or regex pattern.');
@@ -46,9 +45,9 @@ function App() {
     try {
       const { allContent, hadErrors } = await processGitHubContent({
         inputs,
-        filePatterns: filePatternsArr,
+        filePatterns: filePatterns.split('\n').map((p) => p.trim()).filter((p) => p),
         keepMatchingFiles: fileFilterMode === 'Include matching files',
-        linePatterns: linePatternsArr,
+        linePatterns: linePatterns.split('\n').map((p) => p.trim()).filter((p) => p),
         keepMatchingLines: lineFilterMode === 'Include matching lines'
       });
       setStitchedContent(allContent);
@@ -61,7 +60,6 @@ function App() {
     }
   };
 
-  // Copy-to-clipboard function
   const handleCopy = () => {
     navigator.clipboard.writeText(stitchedContent)
       .then(() => {
@@ -72,7 +70,6 @@ function App() {
       });
   };
 
-  // Download as .md
   const handleDownload = () => {
     const blob = new Blob([stitchedContent], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -84,77 +81,56 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <Sidebar />
-      <div className="main-content">
-        <h1>🧵 CodeStitch.dev</h1>
-        <p>
-          Stitch together content from GitHub repositories, PRs, or issues.
+    <>
+      {/* Top AppBar */}
+      <AppBar position="static" sx={{ backgroundColor: '#673ab7' }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            🧵 CodeStitch.dev
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Main container area */}
+      <Container className="main-container">
+        <AboutCard />
+
+        <Typography variant="body1" sx={{ marginTop: 2 }}>
+          Stitch together content from GitHub repositories, PRs, or issues. 
           Enter URLs to files, folders, PRs, issues, or use regex patterns to match file paths.
-        </p>
+        </Typography>
 
         <GitHubInput value={githubInputs} onChange={setGithubInputs} />
 
-        <div className="advanced-filters">
-          <h3>Advanced Filtering Options</h3>
-          <div className="filter-columns">
-            <div className="filter-column">
-              <FilePatternInput value={filePatterns} onChange={setFilePatterns} />
-              <FilterModeSelector
-                label="File Filter Mode"
-                helpText="Choose whether to include or exclude files matching these patterns"
-                options={['Include matching files', 'Exclude matching files']}
-                value={fileFilterMode}
-                onChange={setFileFilterMode}
-              />
-            </div>
-            <div className="filter-column">
-              <LinePatternInput value={linePatterns} onChange={setLinePatterns} />
-              <FilterModeSelector
-                label="Line Filter Mode"
-                helpText="Choose whether to include or exclude lines matching these patterns"
-                options={['Include matching lines', 'Exclude matching lines']}
-                value={lineFilterMode}
-                onChange={setLineFilterMode}
-              />
-            </div>
-          </div>
-        </div>
+        <AdvancedFilters
+          filePatterns={filePatterns}
+          setFilePatterns={setFilePatterns}
+          fileFilterMode={fileFilterMode}
+          setFileFilterMode={setFileFilterMode}
+          linePatterns={linePatterns}
+          setLinePatterns={setLinePatterns}
+          lineFilterMode={lineFilterMode}
+          setLineFilterMode={setLineFilterMode}
+        />
 
-        <button onClick={handleStitch} disabled={loading}>
+        <Button
+          variant="contained"
+          sx={{ marginTop: 2 }}
+          onClick={handleStitch}
+          disabled={loading}
+        >
           {loading ? 'Stitching...' : '🧵 Stitch Content'}
-        </button>
+        </Button>
 
-        {stitchedContent && (
-          <>
-            {errorOccurred && (
-              <div className="warning-message">
-                ⚠️ Some errors occurred while fetching content. Please check the output below.
-              </div>
-            )}
-            {!errorOccurred && (
-              <div className="success-message">
-                ✅ Content stitched successfully!
-              </div>
-            )}
-            
-            <h3>Stitched Content:</h3>
-            <div className="stitched-content-container">
-              <pre className="stitched-content">
-                {stitchedContent}
-              </pre>
-              <button className="copy-button" onClick={handleCopy}>
-                Copy
-              </button>
-            </div>
-
-            <button className="download-button" onClick={handleDownload}>
-              💾 Download Stitched Content
-            </button>
-          </>
-        )}
-      </div>
-    </div>
+        {/* Output area */}
+        <OutputArea
+          stitchedContent={stitchedContent}
+          errorOccurred={errorOccurred}
+          onCopy={handleCopy}
+          onDownload={handleDownload}
+        />
+      </Container>
+    </>
   );
 }
 

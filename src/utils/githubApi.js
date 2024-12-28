@@ -1,9 +1,9 @@
 import { parseGitHubInput } from './parseGitHubInput';
-import { shouldIncludeFile, shouldIncludeLine } from './contentFilters';
+import { shouldIncludeFile, shouldIncludeLine } from './filters';
 
 /**
- * Main function to process multiple lines of user input (URLs or patterns).
- * Returns stitched content and whether any errors occurred.
+ * Main function to process multiple user input lines (URLs or patterns).
+ * Returns stitched content and a boolean if errors occurred.
  */
 export async function processGitHubContent({
   inputs,
@@ -22,38 +22,49 @@ export async function processGitHubContent({
       hadErrors = true;
       continue;
     }
-    allContent += `\n\n--- Content from ${inputLine} ---\n`;
+    allContent += `\n--- Content from ${inputLine} ---\n`;
 
     try {
-      if (inputType === 'regex') {
-        // Not implemented in detail below, but conceptually:
-        allContent += 'Regex-based searches across user’s repos are difficult client-side.\n';
-        // Typically you’d need a user’s token to list all their repos, then search them.
-        // For brevity, we’ll just note it’s not implemented fully here.
-      } else if (inputType === 'repo') {
-        const content = await processRepo({ repoName, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines });
-        allContent += content;
-      } else if (inputType === 'content') {
-        // “content” = directory path under a branch
-        const { branch, path } = extraInfo;
-        const content = await processPath({ repoName, branch, path, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines });
-        allContent += content;
-      } else if (inputType === 'file') {
-        const { branch, path } = extraInfo;
-        const content = await processFile({ repoName, branch, path, linePatterns, keepMatchingLines });
-        allContent += content;
-      } else if (inputType === 'pr') {
-        const prNumber = extraInfo;
-        const content = await processPullRequest({ repoName, prNumber });
-        allContent += content;
-      } else if (inputType === 'issue') {
-        const issueNumber = extraInfo;
-        const content = await processIssue({ repoName, issueNumber });
-        allContent += content;
+      switch (inputType) {
+        case 'regex':
+          // For brevity, just note we don't fully implement user-wide searching here
+          allContent += 'Regex search not fully implemented (client-side)!\n';
+          break;
+        case 'repo': {
+          const content = await processRepo({ repoName, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines });
+          allContent += content;
+          break;
+        }
+        case 'content': {
+          const { branch, path } = extraInfo;
+          const content = await processPath({ repoName, branch, path, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines });
+          allContent += content;
+          break;
+        }
+        case 'file': {
+          const { branch, path } = extraInfo;
+          const content = await processFile({ repoName, branch, path, linePatterns, keepMatchingLines });
+          allContent += content;
+          break;
+        }
+        case 'pr': {
+          const prNumber = extraInfo;
+          const content = await processPullRequest({ repoName, prNumber });
+          allContent += content;
+          break;
+        }
+        case 'issue': {
+          const issueNumber = extraInfo;
+          const content = await processIssue({ repoName, issueNumber });
+          allContent += content;
+          break;
+        }
+        default:
+          allContent += 'Unknown input type.\n';
+          hadErrors = true;
       }
     } catch (err) {
       allContent += `An error occurred: ${err.message}\n`;
-      console.error(err);
       hadErrors = true;
     }
   }
@@ -62,12 +73,10 @@ export async function processGitHubContent({
 }
 
 /**
- * Fetch all content from a repository’s root.
+ * Example for a repository root
  */
 async function processRepo({ repoName, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines }) {
   try {
-    // Repos have a default branch, but we don’t have that info up front in a standard way without separate fetch
-    // We can assume 'main' or 'master' or do an extra request:
     const { default_branch } = await fetchRepo(repoName);
     const contentList = await fetchDirectory(repoName, default_branch, '');
     return await processDirectoryContents({
@@ -85,7 +94,7 @@ async function processRepo({ repoName, filePatterns, keepMatchingFiles, linePatt
 }
 
 /**
- * Fetch contents of a specific path in a repo, on a given branch.
+ * Example for a path in a repo branch
  */
 async function processPath({ repoName, branch, path, filePatterns, keepMatchingFiles, linePatterns, keepMatchingLines }) {
   try {
@@ -105,14 +114,12 @@ async function processPath({ repoName, branch, path, filePatterns, keepMatchingF
 }
 
 /**
- * Fetch a single file’s contents from GitHub.
+ * Single file
  */
 async function processFile({ repoName, branch, path, linePatterns, keepMatchingLines }) {
   try {
     const fileContent = await fetchFile(repoName, branch, path);
-    const lines = fileContent.split('\n').filter((line) =>
-      shouldIncludeLine(line, linePatterns, keepMatchingLines)
-    );
+    const lines = fileContent.split('\n').filter((l) => shouldIncludeLine(l, linePatterns, keepMatchingLines));
     return `\n--- ${path} ---\n\n${lines.join('\n')}\n`;
   } catch (err) {
     return `Error processing file '${path}': ${err.message}\n`;
@@ -120,7 +127,7 @@ async function processFile({ repoName, branch, path, linePatterns, keepMatchingL
 }
 
 /**
- * Handle directory listing + recursion.
+ * Recursively process a directory listing
  */
 async function processDirectoryContents({
   repoName,
@@ -134,7 +141,6 @@ async function processDirectoryContents({
   let result = '';
   for (const item of contentList) {
     if (item.type === 'dir') {
-      // Recursively fetch
       try {
         const subContent = await fetchDirectory(repoName, branch, item.path);
         result += await processDirectoryContents({
@@ -150,13 +156,10 @@ async function processDirectoryContents({
         result += `\nError processing directory ${item.path}: ${err.message}\n`;
       }
     } else if (item.type === 'file') {
-      // Check file pattern
       if (shouldIncludeFile(item.path, filePatterns, keepMatchingFiles)) {
         try {
           const content = await fetchFile(repoName, branch, item.path);
-          const lines = content.split('\n').filter((line) =>
-            shouldIncludeLine(line, linePatterns, keepMatchingLines)
-          );
+          const lines = content.split('\n').filter((l) => shouldIncludeLine(l, linePatterns, keepMatchingLines));
           result += `\n--- ${item.path} ---\n\n${lines.join('\n')}\n`;
         } catch (err) {
           result += `\nError processing ${item.path}: ${err.message}\n`;
@@ -168,22 +171,22 @@ async function processDirectoryContents({
 }
 
 /**
- * Process a PR by fetching metadata and diff from the GitHub API.
+ * Fetch a PR
  */
 async function processPullRequest({ repoName, prNumber }) {
   try {
-    // 1) Fetch the PR itself for metadata
     const [owner, repo] = repoName.split('/');
     const prUrl = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}`;
-    const prRes = await ghFetch(prUrl, { method: 'GET' });
+    
+    // fetch PR data
+    const prRes = await ghFetch(prUrl);
     if (prRes.status !== 200) {
       return `Error fetching PR info: ${prRes.status}\n`;
     }
     const prData = await prRes.json();
 
-    // 2) Fetch the PR diff
+    // fetch PR diff
     const diffRes = await ghFetch(prUrl, {
-      method: 'GET',
       headers: { Accept: 'application/vnd.github.v3.diff' }
     });
     if (diffRes.status !== 200) {
@@ -191,7 +194,7 @@ async function processPullRequest({ repoName, prNumber }) {
     }
     const diffText = await diffRes.text();
 
-    // Construct a nice output
+    // Construct final output
     return [
       `# Pull Request #${prNumber}: ${prData.title}\n`,
       `**Author:** ${prData.user.login}  \n`,
@@ -210,20 +213,21 @@ async function processPullRequest({ repoName, prNumber }) {
 }
 
 /**
- * Process a GitHub issue by fetching the title, body, and comments.
+ * Fetch an issue
  */
 async function processIssue({ repoName, issueNumber }) {
   try {
     const [owner, repo] = repoName.split('/');
     const issueUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}`;
-    const issueRes = await ghFetch(issueUrl, { method: 'GET' });
+    
+    const issueRes = await ghFetch(issueUrl);
     if (issueRes.status !== 200) {
       return `Error fetching issue: ${issueRes.status}\n`;
     }
     const issueData = await issueRes.json();
 
-    // Comments
-    const commentsRes = await ghFetch(`${issueUrl}/comments`, { method: 'GET' });
+    // comments
+    const commentsRes = await ghFetch(`${issueUrl}/comments`);
     let commentsData = [];
     if (commentsRes.status === 200) {
       commentsData = await commentsRes.json();
@@ -242,24 +246,17 @@ async function processIssue({ repoName, issueNumber }) {
       lines.push(`### ${comment.user.login} - ${comment.created_at}\n\n`);
       lines.push(`${comment.body}\n\n---\n\n`);
     }
-
     return lines.join('');
   } catch (err) {
     return `Error processing issue: ${err.message}\n`;
   }
 }
 
-/* ===========================
-   Lower-level fetch helpers
-   =========================== */
+/* =====================================
+   Lower-level helpers
+===================================== */
 
-/**
- * If you have a token in .env, you can do:
- *   const token = process.env.REACT_APP_GITHUB_TOKEN;
- */
 function ghFetch(url, options = {}) {
-  // For public data you can omit Authorization.
-  // For private data, pass in a token.
   const token = process.env.REACT_APP_GITHUB_TOKEN;
   const headers = {
     ...options.headers
@@ -270,46 +267,34 @@ function ghFetch(url, options = {}) {
   return fetch(url, { ...options, headers });
 }
 
-/**
- * Fetch a repository to get details like default_branch.
- */
 async function fetchRepo(repoName) {
   const [owner, repo] = repoName.split('/');
   const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
   const resp = await ghFetch(repoUrl);
-  if (resp.status !== 200) {
-    throw new Error(`Error fetching repo: ${resp.status}`);
+  if (resp.status === 404) {
+    throw new Error('Repo not found');
+  } else if (resp.status !== 200) {
+    throw new Error(`GitHub API error: ${resp.status}`);
   }
   return resp.json();
 }
 
-/**
- * Fetch directory contents.
- */
 async function fetchDirectory(repoName, branch, path) {
   const [owner, repo] = repoName.split('/');
   const pathEncoded = encodeURIComponent(path);
-  // /contents/PATH?ref=BRANCH
-  // If path is empty, it’s just /contents?ref=BRANCH
   const base = `https://api.github.com/repos/${owner}/${repo}/contents`;
-  const url =
-    path?.length > 0
-      ? `${base}/${pathEncoded}?ref=${branch}`
-      : `${base}?ref=${branch}`;
-
+  const url = path
+    ? `${base}/${pathEncoded}?ref=${branch}`
+    : `${base}?ref=${branch}`;
   const resp = await ghFetch(url);
   if (resp.status === 404) {
-    throw new Error('Repository or path not found');
-  }
-  if (resp.status !== 200) {
+    throw new Error(`Repository or path not found`);
+  } else if (resp.status !== 200) {
     throw new Error(`GitHub API error: ${resp.status}`);
   }
-  return resp.json(); // returns an array of items
+  return resp.json();
 }
 
-/**
- * Fetch a single file’s content. The response is base64-encoded, so we decode it in JS.
- */
 async function fetchFile(repoName, branch, path) {
   const [owner, repo] = repoName.split('/');
   const pathEncoded = encodeURIComponent(path);
@@ -317,16 +302,14 @@ async function fetchFile(repoName, branch, path) {
   const resp = await ghFetch(url);
   if (resp.status === 404) {
     throw new Error('File not found');
-  }
-  if (resp.status !== 200) {
+  } else if (resp.status !== 200) {
     throw new Error(`GitHub API error: ${resp.status}`);
   }
   const data = await resp.json();
   if (data.size > 1000000) {
     return `File is too large to display (size: ${data.size} bytes)`;
   }
-
-  // Check for binary extension
+  // Check for binary
   const ext = path.split('.').pop().toLowerCase();
   const images = ['png','jpg','jpeg','gif','bmp'];
   const docs = ['pdf','doc','docx','xls','xlsx'];
@@ -337,7 +320,6 @@ async function fetchFile(repoName, branch, path) {
     return `[Binary document file: ${path}]`;
   }
 
-  // Attempt to decode the base64 content
   try {
     const content = atob(data.content.replace(/\n/g, ''));
     return content;

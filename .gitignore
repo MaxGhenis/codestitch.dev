@@ -18,8 +18,8 @@ dist/
 # Mac OS
 .DS_Store
 
-# Optional: coverage output
+# Coverage
 coverage/
 
-# Etc.
+# Env
 .env
