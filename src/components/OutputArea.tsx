@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, IconButton, Paper, Typography, Tooltip } from '@mui/material';
+import { ContentCopy, Download } from '@mui/icons-material';
 import { OutputAreaProps } from '../types';
 
 const OutputArea: React.FC<OutputAreaProps> = ({
@@ -11,52 +12,59 @@ const OutputArea: React.FC<OutputAreaProps> = ({
   if (!stitchedContent) return null;
 
   return (
-    <Box sx={{ marginTop: 3 }}>
-      {errorOccurred ? (
-        <Typography variant="body1" color="warning.main" sx={{ marginBottom: 1 }}>
-          ⚠️ Some errors occurred while fetching content. Please check the output below.
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        p: 3, 
+        borderRadius: 2,
+        position: 'relative',
+        backgroundColor: 'background.paper'
+      }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 2,
+        position: 'sticky',
+        top: 0,
+        backgroundColor: 'background.paper',
+        zIndex: 1,
+        py: 1
+      }}>
+        <Typography variant="h6">
+          Output
         </Typography>
-      ) : (
-        <Typography variant="body1" color="success.main" sx={{ marginBottom: 1 }}>
-          ✅ Content stitched successfully!
-        </Typography>
-      )}
-
-      <Typography variant="h6" sx={{ marginBottom: 1 }}>
-        Stitched Content:
-      </Typography>
-
-      <Box
-        sx={{
-          position: 'relative',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          backgroundColor: '#fff',
-          maxHeight: '300px',
-          overflowY: 'auto',
-          padding: '1rem'
-        }}
-      >
-        <pre className="stitched-content">{stitchedContent}</pre>
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{ position: 'absolute', top: 8, right: 8 }}
-          onClick={onCopy}
-        >
-          Copy
-        </Button>
+        <Box>
+          <Tooltip title="Copy to clipboard">
+            <IconButton onClick={onCopy} size="small" sx={{ mr: 1 }}>
+              <ContentCopy fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Download as Markdown">
+            <IconButton onClick={onDownload} size="small">
+              <Download fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
-      <Button
-        variant="contained"
-        color="success"
-        sx={{ marginTop: 2 }}
-        onClick={onDownload}
+      <Box
+        className="code-scrollbar"
+        sx={{
+          maxHeight: '500px',
+          overflowY: 'auto',
+          backgroundColor: '#f8f9fa',
+          borderRadius: 1,
+          p: 2,
+          fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+          fontSize: '0.875rem',
+          lineHeight: '1.5',
+        }}
       >
-        💾 Download Stitched Content
-      </Button>
-    </Box>
+        <pre>{stitchedContent}</pre>
+      </Box>
+    </Paper>
   );
 };
 

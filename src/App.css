@@ -1,28 +1,45 @@
-/* A small global reset or tweak */
 body, html, #root {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    font-family: Roboto, sans-serif; /* MUI default */
-    background: #f7f7f7;
-  }
-  
-  /* Limit the max width of the main container, center it */
-  .main-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-  
-  .stitched-content {
-    white-space: pre-wrap;
-    font-family: monospace;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-  
-  /* Just a little margin for the alert messages */
-  .alert-spacing {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: #F9FAFB;
+}
+
+pre {
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom scrollbar for code blocks */
+.code-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.code-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.code-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
