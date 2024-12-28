@@ -1,12 +1,14 @@
+// src/components/OutputArea.tsx
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
+import { OutputAreaProps } from '../types';
 
-export default function OutputArea({
+const OutputArea: React.FC<OutputAreaProps> = ({
   stitchedContent,
   errorOccurred,
   onCopy,
   onDownload
-}) {
+}) => {
   if (!stitchedContent) return null;
 
   return (
@@ -57,4 +59,6 @@ export default function OutputArea({
       </Button>
     </Box>
   );
-}
+};
+
+export default OutputArea;

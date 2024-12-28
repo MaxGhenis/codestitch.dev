@@ -1,6 +1,14 @@
+// src/components/FilterModeSelector.tsx
 import React from 'react';
+import { FilterModeProps } from '../types';
 
-const FilterModeSelector = ({ label, helpText, options, value, onChange }) => {
+const FilterModeSelector: React.FC<FilterModeProps> = ({
+  label,
+  helpText,
+  options,
+  value,
+  onChange
+}) => {
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label>{label}</label>
@@ -12,7 +20,7 @@ const FilterModeSelector = ({ label, helpText, options, value, onChange }) => {
         onChange={(e) => onChange(e.target.value)}
         style={{ width: '100%', padding: '0.25rem' }}
       >
-        {options.map((opt) => (
+        {options.map((opt: string) => (
           <option key={opt} value={opt}>
             {opt}
           </option>

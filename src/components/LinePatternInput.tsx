@@ -1,6 +1,8 @@
+// src/components/LinePatternInput.tsx
 import React from 'react';
+import { ComponentProps } from '../types';
 
-const LinePatternInput = ({ value, onChange }) => {
+const LinePatternInput: React.FC<ComponentProps> = ({ value, onChange }) => {
   return (
     <div>
       <label htmlFor="line-patterns">Line Content Patterns</label>

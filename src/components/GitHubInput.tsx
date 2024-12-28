@@ -1,7 +1,9 @@
+// src/components/GitHubInput.tsx
 import React from 'react';
 import { TextField } from '@mui/material';
+import { ComponentProps } from '../types';
 
-export default function GitHubInput({ value, onChange }) {
+const GitHubInput: React.FC<ComponentProps> = ({ value, onChange }) => {
   return (
     <TextField
       label="GitHub URLs/Patterns"
@@ -14,4 +16,6 @@ export default function GitHubInput({ value, onChange }) {
       sx={{ marginTop: 2 }}
     />
   );
-}
+};
+
+export default GitHubInput;

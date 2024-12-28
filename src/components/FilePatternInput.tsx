@@ -1,6 +1,8 @@
+// src/components/FilePatternInput.tsx
 import React from 'react';
+import { ComponentProps } from '../types';
 
-const FilePatternInput = ({ value, onChange }) => {
+const FilePatternInput: React.FC<ComponentProps> = ({ value, onChange }) => {
   return (
     <div>
       <label htmlFor="file-patterns">File Path Patterns</label>
