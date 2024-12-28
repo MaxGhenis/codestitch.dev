@@ -1,0 +1,40 @@
+.app-container {
+    display: flex;
+    font-family: sans-serif;
+    color: #333;
+  }
+  
+  .sidebar {
+    width: 240px;
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-right: 1px solid #ccc;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 1rem 2rem;
+  }
+  
+  .advanced-filters {
+    margin-top: 2rem;
+  }
+  
+  .filter-columns {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .filter-column {
+    flex: 1;
+  }
+  
+  .stitched-content {
+    max-height: 300px;
+    overflow-y: scroll;
+    background: #fafafa;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+  }

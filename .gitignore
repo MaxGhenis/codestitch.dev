@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Builds
+build/
+dist/
+
+# Logs
+*.log
+
+# Editor settings
+.vscode/
+*.swp
+*~
+
+# Mac OS
+.DS_Store
+
+# Optional: coverage output
+coverage/
+
+# Etc.
+.env
