@@ -27,7 +27,7 @@ jobs:
       # Step 4: Build the app
       - name: Build the app
         env:
-          REACT_APP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run build
 
       # Step 5: Add the CNAME file
@@ -38,5 +38,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
