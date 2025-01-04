@@ -25,19 +25,43 @@ export async function fetchRepo(repoName: string) {
 }
 
 export async function fetchDirectory(repoName: string, branch: string, path: string) {
-  const [owner, repo] = repoName.split('/');
-  const pathEncoded = encodeURIComponent(path);
-  const base = `https://api.github.com/repos/${owner}/${repo}/contents`;
-  const url = path
-    ? `${base}/${pathEncoded}?ref=${branch}`
-    : `${base}?ref=${branch}`;
-  const resp = await ghFetch(url);
-  if (resp.status === 404) {
-    throw new Error(`Repository or path not found`);
-  } else if (resp.status !== 200) {
-    throw new Error(`GitHub API error: ${resp.status}`);
+  try {
+    const [owner, repo] = repoName.split('/');
+    const pathEncoded = path ? encodeURIComponent(path) : '';
+    const branchEncoded = encodeURIComponent(branch);
+    const base = `https://api.github.com/repos/${owner}/${repo}/contents`;
+    const url = path
+      ? `${base}/${pathEncoded}?ref=${branchEncoded}`
+      : `${base}?ref=${branchEncoded}`;
+    
+    console.log('Fetching directory:', url);
+    const resp = await ghFetch(url);
+    
+    if (resp.status === 404) {
+      // Try fetching with encoded slash in branch name
+      if (branch.includes('/')) {
+        const altBranchEncoded = encodeURIComponent(branch.replace('/', '%2F'));
+        const altUrl = path
+          ? `${base}/${pathEncoded}?ref=${altBranchEncoded}`
+          : `${base}?ref=${altBranchEncoded}`;
+        
+        console.log('Retrying with encoded branch:', altUrl);
+        const altResp = await ghFetch(altUrl);
+        
+        if (altResp.status === 200) {
+          return altResp.json();
+        }
+      }
+      throw new Error(`Repository, branch, or path not found: ${url}`);
+    } else if (resp.status !== 200) {
+      const error = await resp.json();
+      throw new Error(`GitHub API error: ${resp.status} - ${error.message || 'Unknown error'}`);
+    }
+    return resp.json();
+  } catch (error) {
+    console.error('Error in fetchDirectory:', error);
+    throw error;
   }
-  return resp.json();
 }
 
 export async function fetchFile(repoName: string, branch: string, path: string) {
