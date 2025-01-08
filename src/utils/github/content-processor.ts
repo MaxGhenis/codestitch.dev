@@ -1,7 +1,11 @@
 import { GitHubContentOptions, GitHubError } from '../../types/github';
-import { processRepo, processPath, processFile } from './repo-operations';
-import { processPullRequest } from './pr-operations';
-import { processIssue } from './issue-operations';
+import {
+  processRepo,
+  processPath,
+  processFile,
+  processPullRequest,
+  processIssue
+} from './operations';
 import { parseGitHubInput } from '../parseGitHubInput';
 
 export async function processGitHubContent({
