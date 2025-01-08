@@ -1,1 +1,0 @@
-export { processRepo, processPath, processFile, processDirectoryContents } from './operations';

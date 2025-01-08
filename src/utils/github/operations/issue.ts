@@ -1,5 +1,5 @@
-import { GitHubError } from '../../types/github';
-import { ghFetch } from './api-client';
+import { GitHubError } from '../../../types/github';
+import { ghFetch } from '../api-client';
 
 interface IssueParams {
   repoName: string;
