@@ -29,16 +29,19 @@ export function parseGitHubInput(line: string): ParseResult {
   }
 
   const decodeBranchAndPath = (input: string): { branch: string; path: string } => {
-    const potentialPathIndex = input.indexOf('/', input.indexOf('/') + 1);
-    if (potentialPathIndex === -1) {
+    // Find the first forward slash after the beginning
+    const firstSlashIndex = input.indexOf('/');
+    if (firstSlashIndex === -1) {
       return {
         branch: decodeURIComponent(input),
         path: ''
       };
     }
     
-    const branch = decodeURIComponent(input.substring(0, potentialPathIndex));
-    const path = input.substring(potentialPathIndex + 1);
+    // Branch is everything before the first slash
+    const branch = decodeURIComponent(input.substring(0, firstSlashIndex));
+    // Path is everything after the first slash
+    const path = input.substring(firstSlashIndex + 1);
     return { branch, path };
   };
 
