@@ -1,5 +1,5 @@
 import { GitHubError } from '../../../types/github';
-import { ghFetch } from '../api-client';
+import { ghFetch, fetchPrDiff } from '../api-client';
 
 interface PullRequestParams {
   repoName: string;
@@ -19,7 +19,7 @@ export async function processPullRequest({ repoName, prNumber }: PullRequestPara
     const prData = await prRes.json();
 
     // fetch PR diff
-    const diffRes = await ghFetch(prEndpoint, {
+    const diffRes = await fetchPrDiff(prEndpoint, {
       headers: { Accept: 'application/vnd.github.v3.diff' }
     });
     if (diffRes.status !== 200) {
