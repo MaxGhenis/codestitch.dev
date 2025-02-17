@@ -12,6 +12,15 @@ export function ghFetch(url: string, options: GitHubOptions = {}) {
   return fetch(proxyUrl, { ...options, headers });
 }
 
+export async function fetchPrDiff(url: string, options: GitHubOptions = {}) {
+  const headers = {
+    ...options.headers,
+  };
+
+  const proxyUrl = `https://api.github.com/${url}`
+  return fetch(proxyUrl, { ...options, headers });
+}
+
 export async function fetchRepo(repoName: string) {
   const [owner, repo] = repoName.split('/');
   const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
